@@ -1,1 +1,87 @@
+# 1.Import the required Python libraries (pandas, numpy, matplotlib, seaborn).
+import pandas as pd 
+import numpy as np 
+import matplotlib.pyplot as plt 
+import seaborn as sns
+#2.Load the dataset into a pandas DataFrame.
+df = pd.read_csv("Customer Purchasing Behaviors.csv")
+#3.Display the first few rows of the DataFrame to understand its structure.
+print(df.shape)
+print(df.columns.tolist())
+df.head()
+
+print("data types of each column:")
+print(df.dtypes)
+
+print("missing values in each column:")
+print(df.isnull().sum())
+
+num_cols= df.select_dtypes(include=np.number)
+df[num_cols.columns]= num_cols.fillna(num_cols.mean())
+print("Missing values in numerical columns filled with mean")
+
+cat_cols=df.select_dtypes(include='object')
+for col in cat_cols:
+      df[col].fillna(df[col].mode()[0], inplace=True)
+      print(f"Missing values in categorical column '{col}' filled with mode")
+
+print("remaining missing values :")
+print(df.isnull().sum())
+
+print("mean of numerical columns:")
+print (df.mean(numeric_only=True))
+
+print("median of numerical columns:")
+print(df.median(numeric_only=True))
+
+print("standard deviation of numerical columns:")
+print(df.std(numeric_only =True))
+
+print("minimum value of numerical columns:")
+print(df.min(numeric_only=True))
+
+print("Maximum value of numerical columns:")
+print(df.max(numeric_only=True))
+
+print("statistical summary :")
+print(df.describe())
+
+# Plot histogram for a Revenue-like column (case-insensitive); handle missing or non-numeric gracefully
+revenue_candidates = [c for c in df.columns if 'revenue' in c.lower()]
+if revenue_candidates:
+    col = revenue_candidates[0]
+    series = pd.to_numeric(df[col], errors='coerce').dropna()
+    if series.empty:
+        print(f"No numeric data available in '{col}' to plot.")
+    else:
+        plt.hist(series)
+        plt.xlabel(col)
+        plt.ylabel("Frequency")
+        plt.title(f"Histogram of {col}")
+        plt.show()
+else:
+    print("No column matching 'Revenue' found. Available columns:", df.columns.tolist())
+
+df['Genre'].value_counts().plot(kind='bar')
+plt.xlabel("Genre")
+plt.ylabel("Count")
+plt.title("Movies by Genre")
+plt.show()
+
+plt.boxplot(df['Revenue'])
+plt.ylabel("Revenue")
+plt.title("Box Plot of Revenue")
+plt.show()
+
+plt.scatter(df['Rating'], df['Revenue'])
+plt.xlabel("Rating")
+plt.ylabel("Revenue")
+plt.title("Rating vs Revenue")
+plt.show()
+
+corr = df.corr(numeric_only=True)
+
+sns.heatmap(corr, annot=True)
+plt.title("Correlation Heatmap")
+plt.show()
 
